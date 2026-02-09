@@ -1,5 +1,7 @@
+import path from 'path';
 import { app, BrowserWindow } from 'electron';
 import { registerIpcHandlers } from './main/ipcBridge';
+import { db } from './main/db';
 
 const isDev = !app.isPackaged; // process.env.NODE_ENV === 'development';
 
@@ -45,6 +47,7 @@ const createWindow = (): void => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  db.init(path.join(app.getPath('userData'), 'messenger.db'));
   registerIpcHandlers();
   createWindow();
 });

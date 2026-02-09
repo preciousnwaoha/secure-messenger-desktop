@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '../shared/constants';
+import { db } from './db';
 
 function assertPositiveInt(value: unknown, name: string): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
@@ -22,8 +23,7 @@ export function registerIpcHandlers(): void {
       assertPositiveInt(params?.limit, 'limit');
       assertPositiveInt(params?.offset, 'offset');
 
-      // TODO: replace stub — use Math.min(params.limit, 50) and params.offset
-      return [] as { id: string; title: string; lastMessageAt: string; unreadCount: number }[];
+      return db.getChats(Math.min(params.limit, 50), params.offset);
     },
   );
 
@@ -34,8 +34,7 @@ export function registerIpcHandlers(): void {
       assertPositiveInt(params?.limit, 'limit');
       assertPositiveInt(params?.offset, 'offset');
 
-      // TODO: replace stub — use chatId, Math.min(params.limit, 50), params.offset
-      return [] as { id: string; chatId: string; ts: string; sender: string; body: string }[];
+      return db.getMessages(params.chatId, Math.min(params.limit, 50), params.offset);
     },
   );
 
@@ -45,13 +44,12 @@ export function registerIpcHandlers(): void {
       assertNonEmptyString(params?.chatId, 'chatId');
       assertNonEmptyString(params?.q, 'q');
 
-      // TODO: replace stub — use chatId, q.slice(0, 200)
-      return [] as { id: string; chatId: string; ts: string; sender: string; body: string }[];
+      return db.searchMessages(params.chatId, params.q.slice(0, 200));
     },
   );
 
   ipcMain.handle(IPC_CHANNELS.DB_SEED, async () => {
-    // TODO: replace with actual seed routine
+    db.seedIfEmpty();
   });
 
   ipcMain.handle(IPC_CHANNELS.WS_SIMULATE_DROP, async () => {
