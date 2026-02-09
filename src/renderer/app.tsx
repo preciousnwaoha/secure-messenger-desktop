@@ -1,13 +1,19 @@
-// src/renderer/app.tsx
 import { createRoot } from 'react-dom/client';
 import { useCallback, useEffect, useState, ReactElement } from 'react';
 import { Provider } from 'react-redux';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
 import { store } from './store';
 import { wsClient } from './services/wsClient';
 import { ConnectionStatusBar } from './components/ConnectionStatusBar';
 import { ChatList } from './components/ChatList';
 import { MessageView } from './components/MessageView';
 import { Database, Unplug } from 'lucide-react';
+
+const theme = createTheme();
 
 function App(): ReactElement {
   const [seeding, setSeeding] = useState(false);
@@ -37,45 +43,48 @@ function App(): ReactElement {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <ConnectionStatusBar />
-      <div className="flex flex-1 overflow-hidden">
+      <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* Sidebar */}
-        <div className="w-80 flex flex-col border-r border-gray-200">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-white">
-            <h1 className="font-bold text-sm">Chats</h1>
-            <div className="flex gap-1">
-              <button
+        <Box sx={{ width: 320, display: 'flex', flexDirection: 'column', borderRight: 1, borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1.5, py: 1, borderBottom: 1, borderColor: 'divider' }}>
+            <Typography variant="subtitle2" fontWeight="bold">Chats</Typography>
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              <IconButton
+                size="small"
                 onClick={handleSeed}
                 disabled={seeding}
-                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
                 title="Seed Database"
               >
                 <Database size={16} />
-              </button>
-              <button
+              </IconButton>
+              <IconButton
+                size="small"
                 onClick={handleSimulateDrop}
-                className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
                 title="Simulate Connection Drop"
               >
                 <Unplug size={16} />
-              </button>
-            </div>
-          </div>
-          <div className="flex-1">
+              </IconButton>
+            </Box>
+          </Box>
+          <Box sx={{ flex: 1 }}>
             <ChatList />
-          </div>
-        </div>
+          </Box>
+        </Box>
         {/* Main content */}
         <MessageView />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <Provider store={store}>
-    <App />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <App />
+    </ThemeProvider>
   </Provider>,
 );

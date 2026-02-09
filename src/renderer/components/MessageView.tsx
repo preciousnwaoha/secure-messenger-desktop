@@ -1,5 +1,8 @@
 import { useEffect, useRef, useCallback, ReactElement } from 'react';
 import { List, useListRef } from 'react-window';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { selectSelectedChatId, selectAllChats } from '../store/chatsSlice';
 import {
@@ -61,48 +64,63 @@ export function MessageView(): ReactElement {
 
   if (!selectedChatId) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400">
-        Select a chat to start messaging
-      </div>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography color="text.secondary">Select a chat to start messaging</Typography>
+      </Box>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-        <h2 className="font-semibold text-base">
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2,
+          py: 1.5,
+          borderBottom: 1,
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight={600}>
           {selectedChat?.title ?? 'Chat'}
-        </h2>
-        <div className="w-64">
+        </Typography>
+        <Box sx={{ width: 256 }}>
           <SearchInput />
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Load older button */}
       {hasOlder && !isSearching && (
-        <div className="flex justify-center py-2 bg-gray-50 border-b border-gray-100">
-          <button
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 1, bgcolor: 'grey.50', borderBottom: 1, borderColor: 'grey.100' }}>
+          <Button
+            size="small"
             onClick={handleLoadOlder}
             disabled={loadingOlder}
-            className="flex items-center gap-1 px-3 py-1 text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400"
+            startIcon={<ChevronUp size={14} />}
           >
-            <ChevronUp size={14} />
             {loadingOlder ? 'Loading...' : 'Load older messages'}
-          </button>
-        </div>
+          </Button>
+        </Box>
       )}
 
       {/* Messages area */}
-      <div className="flex-1 bg-gray-50">
+      <Box sx={{ flex: 1, bgcolor: 'grey.50' }}>
         {loading ? (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-            Loading messages...
-          </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <Typography variant="body2" color="text.secondary">
+              Loading messages...
+            </Typography>
+          </Box>
         ) : displayMessages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-            {isSearching ? 'No results found' : 'No messages yet'}
-          </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <Typography variant="body2" color="text.secondary">
+              {isSearching ? 'No results found' : 'No messages yet'}
+            </Typography>
+          </Box>
         ) : (
           <List<{ messages: Message[] }>
             listRef={listRef}
@@ -114,7 +132,7 @@ export function MessageView(): ReactElement {
             style={{ height: '100%' }}
           />
         )}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }

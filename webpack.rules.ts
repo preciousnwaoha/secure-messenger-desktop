@@ -37,7 +37,6 @@ export const rules: Required<ModuleOptions>["rules"] = [
     use: [
       { loader: "style-loader" },
       { loader: "css-loader" },
-      { loader: "postcss-loader" },
     ],
   },
 ];

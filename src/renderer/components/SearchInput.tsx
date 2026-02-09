@@ -1,4 +1,7 @@
 import { useCallback, useState, useRef, ReactElement } from 'react';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
 import { Search, X } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -36,26 +39,28 @@ export function SearchInput(): ReactElement {
   }, [dispatch]);
 
   return (
-    <div className="relative">
-      <Search
-        size={14}
-        className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-      />
-      <input
-        type="text"
-        value={localValue}
-        onChange={handleChange}
-        placeholder="Search messages..."
-        className="w-full pl-8 pr-8 py-1.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400"
-      />
-      {localValue && (
-        <button
-          onClick={handleClear}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-        >
-          <X size={14} />
-        </button>
-      )}
-    </div>
+    <TextField
+      size="small"
+      fullWidth
+      placeholder="Search messages..."
+      value={localValue}
+      onChange={handleChange}
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search size={16} />
+            </InputAdornment>
+          ),
+          endAdornment: localValue ? (
+            <InputAdornment position="end">
+              <IconButton size="small" onClick={handleClear} edge="end">
+                <X size={14} />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        },
+      }}
+    />
   );
 }

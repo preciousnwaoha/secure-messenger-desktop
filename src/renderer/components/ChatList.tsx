@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, ReactElement } from 'react';
 import { List, useListRef } from 'react-window';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   fetchChats,
@@ -78,17 +80,19 @@ export function ChatList(): ReactElement {
 
   if (loading && chats.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-        Loading chats...
-      </div>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+        <Typography variant="body2" color="text.secondary">
+          Loading chats...
+        </Typography>
+      </Box>
     );
   }
 
   return (
-    <div
+    <Box
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      className="h-full outline-none"
+      sx={{ height: '100%', outline: 'none' }}
     >
       <List<{
         chats: Chat[];
@@ -110,6 +114,6 @@ export function ChatList(): ReactElement {
         overscanCount={5}
         style={{ height: '100%' }}
       />
-    </div>
+    </Box>
   );
 }

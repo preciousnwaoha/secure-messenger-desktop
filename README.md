@@ -11,15 +11,52 @@ npm start
 
 On first launch, click the **database icon** in the sidebar header to seed 200 chats and 20,000+ messages.
 
+![App Screenshot](docs/screenshot.png)
+*Seed the database and explore chats with real-time message sync.*
+
 ## Available Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm start` | Start the app in development mode |
-| `npm test` | Run Jest unit tests |
+| `npm test` | Run Jest unit tests (see note below) |
 | `npm run lint` | Run ESLint |
 | `npm run package` | Package the app for distribution |
 | `npm run make` | Build platform-specific distributables |
+
+### Native ABI Note
+
+`better-sqlite3` compiles a native binary that must match the runtime. Electron and Node.js use different ABIs, so switching between `npm test` (Node) and `npm start` (Electron) requires a rebuild:
+
+```bash
+# Before running tests (rebuild for Node.js)
+npm rebuild better-sqlite3
+
+# Before running the app (rebuild for Electron)
+npx electron-rebuild -f -o better-sqlite3
+```
+
+`npm install` and `npm start` automatically build for Electron. You only need the manual steps if you alternate between testing and running the app.
+
+## Building for Distribution
+
+`npm run package` creates an unpacked app in `out/`. `npm run make` builds platform-specific installers:
+
+| Platform | Output |
+|----------|--------|
+| macOS | `.zip` archive |
+| Windows | Squirrel installer |
+| Linux | `.deb` and `.rpm` packages |
+
+### Native Module Rebuild
+
+`better-sqlite3` includes a native binary that must match the target Electron ABI. Electron Forge handles this automatically via `AutoUnpackNativesPlugin`. For manual rebuild:
+
+```bash
+npx electron-rebuild -f -o better-sqlite3
+```
+
+When running tests under Node.js (different ABI), rebuild for Node first: `npm rebuild better-sqlite3`.
 
 ## Architecture
 
@@ -76,6 +113,7 @@ src/
 - **Tables**: `chats` (indexed on `lastMessageAt DESC`), `messages` (indexed on `chatId, ts DESC`)
 - **Full-text search**: FTS5 virtual table on `messages.body` with automatic triggers
 - **Pagination**: All queries use `LIMIT/OFFSET` (50 per page) — no full table scans
+- **File location**: `app.getPath('userData')/messenger.db` (platform-specific user data directory)
 
 ### WebSocket / Connection Health
 
@@ -140,6 +178,9 @@ All IPC handlers in `ipcBridge.ts` validate inputs using `assertNonEmptyString` 
 - **Message search with encryption**: FTS5 cannot search encrypted content. Production options include: (a) searchable encryption schemes, (b) client-side index decrypted on unlock, or (c) accepting that search requires decryption.
 - **Key rotation**: No key rotation mechanism exists yet. This would require re-encrypting all messages with the new key, ideally as a background migration.
 - **End-to-end encryption**: The current model encrypts at-rest only. True E2E would require key exchange (e.g., Signal Protocol / Double Ratchet) between clients, which is beyond the scope of this prototype.
+- **Synchronous DB access**: better-sqlite3 is synchronous — it blocks the main thread during writes. An async wrapper or worker thread would improve responsiveness under heavy load.
+- **In-process WebSocket server**: The WS server runs inside the main process for demo purposes. A production app would connect to a remote server.
+- **With more time**: CI/CD packaging automation, comprehensive E2E tests with Playwright, message-level virtualization height estimation, stronger searchable encryption.
 
 ## Testing
 
@@ -151,3 +192,4 @@ Tests cover:
 - **Database**: Seed correctness (200 chats, 20k+ messages), pagination, search, insert/update
 - **SecurityService (main)**: Encrypt/decrypt roundtrip, Unicode handling, empty strings, base64 output verification, `redactBody` placeholder
 - **SecurityService (renderer)**: Identity-passthrough roundtrip, `redactBody` placeholder
+- **Connection state**: Reducer transitions (offline → reconnecting → connected), retry count management, pong handling

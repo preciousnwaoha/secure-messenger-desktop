@@ -1,4 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 import type { Message } from '../../shared/types';
 
 interface MessageBubbleProps {
@@ -28,34 +31,50 @@ export function MessageBubble({
   });
 
   return (
-    <div {...ariaAttributes} style={style}>
-      <div
-        className={`flex ${isMe ? 'justify-end' : 'justify-start'} px-4 py-1`}
+    <Box {...ariaAttributes} style={style}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: isMe ? 'flex-end' : 'flex-start',
+          px: 2,
+          py: 0.5,
+        }}
       >
-        <div
-          className={`max-w-[70%] rounded-lg px-3 py-2 ${
-            isMe
-              ? 'bg-blue-500 text-white rounded-br-none'
-              : 'bg-gray-100 text-gray-900 rounded-bl-none'
-          }`}
+        <Paper
+          elevation={0}
+          sx={{
+            maxWidth: '70%',
+            px: 1.5,
+            py: 1,
+            borderRadius: 2,
+            borderBottomRightRadius: isMe ? 0 : 8,
+            borderBottomLeftRadius: isMe ? 8 : 0,
+            bgcolor: isMe ? 'primary.main' : 'grey.100',
+            color: isMe ? 'primary.contrastText' : 'text.primary',
+          }}
         >
           {!isMe && (
-            <div className="text-xs font-semibold text-blue-600 mb-0.5">
+            <Typography variant="caption" fontWeight={600} color="primary">
               {message.sender}
-            </div>
+            </Typography>
           )}
-          <p className="text-sm whitespace-pre-wrap break-words">
+          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
             {message.body}
-          </p>
-          <div
-            className={`text-[10px] mt-1 ${
-              isMe ? 'text-blue-100' : 'text-gray-400'
-            } text-right`}
+          </Typography>
+          <Typography
+            variant="caption"
+            sx={{
+              fontSize: 10,
+              mt: 0.5,
+              textAlign: 'right',
+              display: 'block',
+              color: isMe ? 'primary.light' : 'text.secondary',
+            }}
           >
             {time}
-          </div>
-        </div>
-      </div>
-    </div>
+          </Typography>
+        </Paper>
+      </Box>
+    </Box>
   );
 }

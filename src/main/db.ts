@@ -1,6 +1,7 @@
 // src/main/db.ts
 import Database from 'better-sqlite3';
 import type { Chat, ChatRow, InsertMessageInput, Message, MessageRow } from '../shared/types';
+import { logInfo } from './logger';
 
 export class DBService {
   private db: Database.Database | null = null;
@@ -233,7 +234,7 @@ export class DBService {
     });
 
     txn();
-    console.log(`[DBService] Seeded ${chatCount} chats, ${totalMessages} messages`);
+    logInfo('DBService', { action: 'seed', chatCount, totalMessages });
   }
 
   getChats(limit: number, offset: number): Chat[] {
@@ -260,7 +261,7 @@ export class DBService {
       this.stmtIncrementUnread.run(chatId);
     });
     txn();
-    console.log(`[DBService] Inserted message ${msg.id} into ${chatId}`);
+    logInfo('DBService', { action: 'insert', messageId: msg.id, chatId });
   }
 
   searchMessages(chatId: string, q: string): Message[] {

@@ -1,4 +1,8 @@
 import type { CSSProperties, ReactElement } from 'react';
+import Box from '@mui/material/Box';
+import Avatar from '@mui/material/Avatar';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
 import type { Chat } from '../../shared/types';
 import { MessageSquare } from 'lucide-react';
 
@@ -47,30 +51,48 @@ export function ChatListItem({
   const timeStr = formatRelativeTime(chat.lastMessageAt);
 
   return (
-    <div
+    <Box
       {...ariaAttributes}
       style={style}
-      className={`flex items-center px-3 py-2 cursor-pointer border-b border-gray-100 ${
-        isSelected ? 'bg-blue-50' : 'hover:bg-gray-50'
-      } ${isFocused ? 'ring-2 ring-inset ring-blue-300' : ''}`}
       onClick={() => onSelect(chat.id)}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        px: 1.5,
+        py: 1,
+        cursor: 'pointer',
+        borderBottom: 1,
+        borderColor: 'grey.100',
+        bgcolor: isSelected ? 'action.selected' : 'transparent',
+        '&:hover': { bgcolor: isSelected ? 'action.selected' : 'action.hover' },
+        ...(isFocused && {
+          outline: '2px solid',
+          outlineColor: 'primary.light',
+          outlineOffset: -2,
+        }),
+      }}
     >
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
-        <MessageSquare size={18} className="text-gray-500" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-baseline">
-          <span className="font-medium text-sm truncate">{chat.title}</span>
-          <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+      <Avatar sx={{ width: 40, height: 40, bgcolor: 'grey.200', mr: 1.5 }}>
+        <MessageSquare size={18} color="#9e9e9e" />
+      </Avatar>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Typography variant="body2" fontWeight={500} noWrap>
+            {chat.title}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ ml: 1, flexShrink: 0 }}>
             {timeStr}
-          </span>
-        </div>
-      </div>
+          </Typography>
+        </Box>
+      </Box>
       {chat.unreadCount > 0 && (
-        <span className="ml-2 flex-shrink-0 bg-blue-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
-          {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
-        </span>
+        <Chip
+          size="small"
+          color="primary"
+          label={chat.unreadCount > 99 ? '99+' : chat.unreadCount}
+          sx={{ ml: 1, height: 20, minWidth: 20, '& .MuiChip-label': { px: 0.75, fontSize: 11 } }}
+        />
       )}
-    </div>
+    </Box>
   );
 }

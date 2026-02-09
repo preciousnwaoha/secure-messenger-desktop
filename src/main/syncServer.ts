@@ -1,6 +1,7 @@
 // src/main/syncServer.ts
 import { WebSocketServer, WebSocket } from "ws";
 import { db } from "./db";
+import { logInfo } from "./logger";
 import type { InsertMessageInput } from "../shared/types";
 
 const SENDERS = ["Alice", "Bob", "Charlie", "Diana", "Eve"] as const;
@@ -68,7 +69,7 @@ class SyncServer {
 
         this.scheduleNext();
 
-        console.log(`[SyncServer] Listening on port ${this.port}`);
+        logInfo('SyncServer', { action: 'listening', port: this.port });
         resolve(this.port);
       });
 
@@ -123,12 +124,12 @@ class SyncServer {
       }
     });
 
-    console.log(`[SyncServer] Emitted message ${msg.id} to ${chatId}`);
+    logInfo('SyncServer', { action: 'emit', messageId: msg.id, chatId });
   }
 
   simulateDrop(): void {
     this.wss?.clients.forEach((client) => client.close());
-    console.log("[SyncServer] Simulated connection drop");
+    logInfo('SyncServer', { action: 'simulateDrop' });
   }
 
   getPort(): number {
