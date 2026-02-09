@@ -1,3 +1,4 @@
+// src/global.d.ts
 declare global {
   interface ElectronAPI {
     db: {
@@ -31,11 +32,13 @@ declare global {
           body: string;
         }[]
       >;
+      markAsRead(params: { chatId: string }): Promise<void>;
       seedDatabase(): Promise<void>;
     };
     ws: {
       simulateDrop(): Promise<void>;
       getConnectionState(): Promise<"connected" | "reconnecting" | "offline">;
+      getPort(): Promise<number>;
     };
   }
 

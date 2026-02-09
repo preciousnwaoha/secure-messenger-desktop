@@ -39,3 +39,13 @@ export interface InsertMessageInput {
   body: string;
   ts: number;
 }
+
+/** WS event payload: server -> renderer when a new message is persisted. */
+export interface WsNewMessageEvent {
+  type: 'new-message';
+  chatId: string;
+  messageId: string;
+  ts: number;
+  sender: string;
+  // body intentionally excluded for security hygiene
+}

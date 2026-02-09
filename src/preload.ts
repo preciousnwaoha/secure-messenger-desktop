@@ -9,11 +9,14 @@ const api: ElectronAPI = {
       ipcRenderer.invoke(IPC_CHANNELS.CHAT_MESSAGES, params),
     searchMessages: (params: { chatId: string; q: string }) =>
       ipcRenderer.invoke(IPC_CHANNELS.CHAT_SEARCH, params),
+    markAsRead: (params: { chatId: string }) =>
+      ipcRenderer.invoke(IPC_CHANNELS.CHAT_MARK_READ, params),
     seedDatabase: () => ipcRenderer.invoke(IPC_CHANNELS.DB_SEED),
   },
   ws: {
     simulateDrop: () => ipcRenderer.invoke(IPC_CHANNELS.WS_SIMULATE_DROP),
     getConnectionState: () => ipcRenderer.invoke(IPC_CHANNELS.WS_CONNECTION_STATE),
+    getPort: () => ipcRenderer.invoke(IPC_CHANNELS.WS_PORT),
   },
 };
 

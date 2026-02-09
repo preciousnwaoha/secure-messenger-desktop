@@ -1,3 +1,4 @@
+// src/main/db.ts
 import Database from 'better-sqlite3';
 import type { Chat, ChatRow, InsertMessageInput, Message, MessageRow } from '../shared/types';
 
@@ -12,6 +13,7 @@ export class DBService {
   private stmtIncrementUnread!: Database.Statement;
   private stmtSearchFts!: Database.Statement | null;
   private stmtSearchLike!: Database.Statement;
+  private stmtMarkAsRead!: Database.Statement;
   private stmtChatCount!: Database.Statement;
   private stmtMessageCount!: Database.Statement;
 
@@ -112,6 +114,10 @@ export class DBService {
        FROM messages
        WHERE chatId = ? AND body LIKE ?
        LIMIT 50`
+    );
+
+    this.stmtMarkAsRead = db.prepare(
+      'UPDATE chats SET unreadCount = 0 WHERE id = ?'
     );
 
     this.stmtChatCount = db.prepare('SELECT COUNT(*) AS count FROM chats');
@@ -262,8 +268,16 @@ export class DBService {
 
     if (this.ftsAvailable && this.stmtSearchFts) {
       try {
-        const escaped = '"' + q.replace(/"/g, '""') + '"';
-        rows = this.stmtSearchFts.all(escaped, chatId) as MessageRow[];
+        const tokens = q.trim().split(/\s+/).filter(t => t.length > 0);
+        if (tokens.length === 0) {
+          rows = [];
+        } else {
+          const quoted = tokens.slice(0, -1).map(t => '"' + t.replace(/"/g, '""') + '"');
+          const last = tokens[tokens.length - 1].replace(/"/g, '');
+          quoted.push(last + '*');
+          const escaped = quoted.join(' ');
+          rows = this.stmtSearchFts.all(escaped, chatId) as MessageRow[];
+        }
       } catch {
         rows = this.fallbackSearch(chatId, q);
       }
@@ -279,6 +293,10 @@ export class DBService {
 
   private fallbackSearch(chatId: string, q: string): MessageRow[] {
     return this.stmtSearchLike.all(chatId, `%${q}%`) as MessageRow[];
+  }
+
+  markAsRead(chatId: string): void {
+    this.stmtMarkAsRead.run(chatId);
   }
 
   getMessageCount(): number {

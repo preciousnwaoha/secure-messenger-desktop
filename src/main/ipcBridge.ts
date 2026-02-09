@@ -1,6 +1,8 @@
+// src/man/ipcBridge.ts
 import { ipcMain } from 'electron';
 import { IPC_CHANNELS } from '../shared/constants';
 import { db } from './db';
+import { syncServer } from './syncServer';
 
 function assertPositiveInt(value: unknown, name: string): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
@@ -48,16 +50,27 @@ export function registerIpcHandlers(): void {
     },
   );
 
+  ipcMain.handle(
+    IPC_CHANNELS.CHAT_MARK_READ,
+    async (_event, params: { chatId: string }) => {
+      assertNonEmptyString(params?.chatId, 'chatId');
+      db.markAsRead(params.chatId);
+    },
+  );
+
   ipcMain.handle(IPC_CHANNELS.DB_SEED, async () => {
     db.seedIfEmpty();
   });
 
   ipcMain.handle(IPC_CHANNELS.WS_SIMULATE_DROP, async () => {
-    // TODO: replace with actual WS disconnect
+    syncServer.simulateDrop();
   });
 
   ipcMain.handle(IPC_CHANNELS.WS_CONNECTION_STATE, async () => {
-    // TODO: replace with actual WS state query
     return 'offline' as const;
+  });
+
+  ipcMain.handle(IPC_CHANNELS.WS_PORT, async () => {
+    return syncServer.getPort();
   });
 }

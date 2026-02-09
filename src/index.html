@@ -2,11 +2,20 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
-
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+      default-src 'self' 'unsafe-inline' data:;
+      connect-src 'self' ws://127.0.0.1:* https://jzevuyyehjuyvtnqgcne.supabase.co https://*.supabase.co;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+    "
+    />
+    <title>Secure Messenger Desktop</title>
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
+    <div id="root"></div>
+    <div id="tooltip-root"></div>
   </body>
 </html>

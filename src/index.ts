@@ -2,6 +2,7 @@ import path from 'path';
 import { app, BrowserWindow } from 'electron';
 import { registerIpcHandlers } from './main/ipcBridge';
 import { db } from './main/db';
+import { syncServer } from './main/syncServer';
 
 const isDev = !app.isPackaged; // process.env.NODE_ENV === 'development';
 
@@ -38,9 +39,6 @@ const createWindow = (): void => {
       mode: "detach",
     });
   }
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -49,6 +47,7 @@ const createWindow = (): void => {
 app.on('ready', () => {
   db.init(path.join(app.getPath('userData'), 'messenger.db'));
   registerIpcHandlers();
+  syncServer.start();
   createWindow();
 });
 
